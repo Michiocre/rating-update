@@ -49,7 +49,10 @@ pub async fn get_token() -> Result<String, String> {
 
         let token2 = std::fs::read_to_string("token.txt");
         match token2 {
-            Ok(t) => return Ok(t),
+            Ok(t) => {
+                println!("Loaded token from file");
+                return Ok(t)
+            },
             Err(_) => warn!("No token found.")
         }
     }
@@ -86,6 +89,7 @@ pub async fn get_token() -> Result<String, String> {
 
 pub async fn get_replays() -> Result<Vec<responses::Replay>, String> {
     let token = get_token().await?;
+    println!("TOKEN: {}", token);
     let mut replays = Vec::new();
     for i in 0..5 {
         info!("Grabbing replays (page {i})");
