@@ -1,5 +1,3 @@
-#![feature(proc_macro_hygiene, decl_macro)]
-
 use simplelog::*;
 use std::{fs::File, ops::Deref};
 use tokio::try_join;
