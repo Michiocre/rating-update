@@ -16,7 +16,8 @@ lazy_static! {
 }
 
 pub async fn get_player_stats(player_id: String) -> Result<String, String> {
-    let request_data = requests::generate_player_stats_request(player_id);
+    let token = get_token().await?;
+    let request_data = requests::generate_player_stats_request(player_id, &token);
     let request_data = encrypt_data(&request_data);
 
     let client = reqwest::Client::new();
@@ -45,6 +46,12 @@ pub async fn get_token() -> Result<String, String> {
             info!("Already have a token");
             return Ok(t.to_owned());
         }
+
+        let token2 = std::fs::read_to_string("token.txt");
+        match token2 {
+            Ok(t) => return Ok(t),
+            Err(_) => warn!("No token found.")
+        }
     }
 
     warn!("Grabbing steam token");
@@ -69,6 +76,8 @@ pub async fn get_token() -> Result<String, String> {
     if let Ok(r) = decrypt_response::<responses::Login>(&response_bytes) {
         info!("Got token: {}", r.header.token);
         *t = Some(r.header.token.to_owned());
+        
+        let _ = std::fs::write("token.txt", r.header.token.clone());
         Ok(r.header.token)
     } else {
         return Err("Couldn't get strive token".to_owned());
@@ -77,8 +86,6 @@ pub async fn get_token() -> Result<String, String> {
 
 pub async fn get_replays() -> Result<Vec<responses::Replay>, String> {
     let token = get_token().await?;
-    // save off token
-    let _ = std::fs::write("token.txt", token.clone());
     let mut replays = Vec::new();
     for i in 0..5 {
         info!("Grabbing replays (page {i})");

@@ -64,11 +64,11 @@ pub struct PlayerStatsRequest {
     int5: i64,
 }
 
-pub fn generate_player_stats_request(player_id: String) -> Request<PlayerStatsRequest> {
+pub fn generate_player_stats_request(player_id: String, token: &str) -> Request<PlayerStatsRequest> {
     Request {
         header: RequestHeader {
             player_id: PLAYER_ID.to_owned(),
-            token: std::fs::read_to_string("token.txt").unwrap(),
+            token: token.to_owned(),
             int1: 2,
             version: VERSION.to_owned(),
             platform: 3, //PC
